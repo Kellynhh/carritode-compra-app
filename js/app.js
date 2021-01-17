@@ -63,4 +63,4 @@ function leerDatosCursos(curso) {
     console.log(carritocompras)
 };
 
-//muestra el carrito en el html
+//muestra el carrito en el html COÑOELAMADRE

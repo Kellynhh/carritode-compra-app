@@ -6,7 +6,7 @@ const carrito = document.querySelector('#carrito');
 const contenedorCarrito = document.querySelector('#lista-carrito tbody');
 const vaciarCarritoBtn = document.querySelector('#vaciar-carrito');
 const listaCursos = document.querySelector('#lista-cursos');
-let carritocompras = []; //let porque esto siempre varia, e inicia como un arreglo vacio porque se va ir agregando infirmacion a medida que vamos agregando objetos al carrito
+let carritoCompras = []; //let porque esto siempre varia, e inicia como un arreglo vacio porque se va ir agregando infirmacion a medida que vamos agregando objetos al carrito
 
 
 //--- creamos function donde registra todos los evetListeners
@@ -14,6 +14,8 @@ eventRegistro(); //llamando funcion arriba para evitar que queden en la ventana 
 function eventRegistro() {
     //cuando agregas un curso presionando agregar
     listaCursos.addEventListener('click', agregandoCurso)
+    //Eliminando cursos  del carrito 
+    carrito.addEventListener('click', eliminarCurso);
 
 };
 // yo quiero que se ejecute esta funcion solamente cuando presione el boton 
@@ -30,9 +32,12 @@ function agregandoCurso(e) {
         const cursoSeleccionado = e.target.parentElement.parentElement;
         leerDatosCursos(cursoSeleccionado);
     }
-
 };
+  // eSTA FUNCION ELEIMINA CURSOS DEL CARRITO 
+ function eliminarCurso(e){
+      console.log(e.target.classList);
 
+ };
 //------------Leer los datos de curso
 
 //funcion que lee elcontenido de  html al que le dimos click y extrae la informacion del curso 
@@ -51,16 +56,76 @@ function leerDatosCursos(curso) {
         id: curso.querySelector('a').getAttribute('data-id'), // cada curso tiene un id propio, para acceder usamos esta sintaxys
         cantidad: 1
     };
-    console.log(infoCurso);
+    // Revisa si un elemento aya existe en el carrito 
+    //usamos . some()que nos permite verificar si un elemento ya esiste en un arreglo 
 
-    //-------------como agregar nustros elementos al carrito de ecompras
-    //colocar un arreglo es una buena forma de ir colocando datos que son similares
-    //creamos un avariable que va ser el carrito de compras... recordar que todas las variables las podmeos colocar en un solo sitio
-    //utilizamos el metodo spradeoperator  o .push para llenar el carrito
-    //tomamos una copia del carrito porque cuando agreguemos mas articulos necesitamos una copia de lo que ya esta como referenci 
-    //usamos los 3 puntos para hecer la copia y le vamos a ir agregando el objeto que se creo anteriormete en este caso infoCurs 
-    carritocompras = [...carritocompras, infoCurso]
-    console.log(carritocompras)
+    const existe = carritoCompras.some(curso => curso.id === infoCurso.id);
+    if (existe) {
+        //actialiamos la cantudad
+        const curso = carritoCompras.map(curso => { //. map nos cre un nuevo arreglo va ir iterando sobre todos los elemento hasta que envcuentre el duplicado 
+            if (curso.id === infoCurso.id) {
+                curso.cantidad++;
+                return curso; // este retorna el objeto actualizado 
+            } else {
+                return curso; // este retorna los objetos que no son duplicados 
+            }
+
+        });
+
+        carritoCompras = [...curso];
+
+    } else {
+        //-------------como agregar nustros elementos al carrito de ecompras
+        //colocar un arreglo es una buena forma de ir colocando datos que son similares
+        //creamos un avariable que va ser el carrito de compras... recordar que todas las variables las podmeos colocar en un solo sitio
+        //utilizamos el metodo spradeoperator  o .push para llenar el carrito
+        //tomamos una copia del carrito porque cuando agreguemos mas articulos necesitamos una copia de lo que ya esta como referenci 
+        //usamos los 3 puntos para hecer la copia y le vamos a ir agregando el objeto que se creo anteriormete en este caso infoCurs 
+        carritoCompras = [...carritoCompras, infoCurso]
+
+    };
+
+
+    console.log(carritoCompras)
+
+    carritoHTML();
 };
 
-//muestra el carrito en el html COÑOELAMADRE
+//----------------PARA MOSTRAR LOS DATOS DEL CARRITO EN EL HTML 
+//----------1 esta funcion se encarga de generar el html basado e el carrito de compras
+//----------2 como es un arreglo la forma de iterarlo es con un forEash 
+//----------3 cada curso que selccionemos se va insertar en un tbody, por lo tanto hay que crear una tabla row dentro 
+function carritoHTML() {
+
+    //limpiar el html 
+    limpiarHTML();
+
+    // recorre el carrito y genera el html 
+    carritoCompras.forEach(curso => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><img src = "${curso.imagen}" width ="100"/> </td>
+            <td>${curso.titulo}</td>
+            <td>${curso.precio}</td>
+            <td>${curso.cantidad}</td>
+            <td>
+            < a href="#" class="borrar-curso" data-id="${curso.id}"> X </a>
+            </td>
+        `;
+
+        //AGREGA EN EL TABLE BODY EL HTML DEL CARRITO 
+        contenedorCarrito.appendChild(row);
+
+    })
+};
+
+// elimina los cursos de tbody
+function limpiarHTML() {
+    contenedorCarrito.innerHTML = ''; // esta es una manera de limpiar el html y que despues se vuelva agregar 
+
+    //MANERA MAS RAPIDA DE LIMPIAR EL HTML 
+
+    /* while(contenedorCarrito.firtsChild){
+        contenedorCarrito.removeChild(contenedorCarrito.firtsChild)
+    } */
+};
